@@ -41,7 +41,7 @@
 
         /* Autocomplete */
         .autocomplete-container { position: relative; }
-        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); z-index: 1000; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 200px; overflow-y: auto; display: none; list-style: none; }
+        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); z-index: 1000; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; display: none; list-style: none; }
         .suggestions-list li { padding: 10px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 13px; }
         .suggestions-list li:hover { background: #f1f5f9; }
 
@@ -58,7 +58,7 @@
             .receipt-page { page-break-after: always; padding: 20px; color: #000; font-family: sans-serif; }
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
             .print-table { width: 100%; border-collapse: collapse; }
-            .print-table th, .print-table td { border-bottom: 1px dashed #000; padding: 8px 0; font-size: 14px;}
+            .print-table th, .print-table td { border-bottom: 1px dashed #000; padding: 8px 5px; font-size: 14px;} /* Thêm padding ngang 5px để chữ không dính nhau */
         }
         #print-area { display: none; }
     </style>
@@ -96,7 +96,7 @@
             <div class="row">
                 <div class="col-2 form-group autocomplete-container">
                     <label>Tên sản phẩm</label>
-                    <input type="text" id="prodName" class="form-control" placeholder="Gõ từ khóa tìm máy..." autocomplete="off">
+                    <input type="text" id="prodName" class="form-control" placeholder="Gõ từ khóa tìm máy (Vd: khoan pin makita)..." autocomplete="off">
                     <ul id="suggestions" class="suggestions-list"></ul>
                 </div>
                 <div class="col form-group"><label>Đơn giá</label><input type="tel" id="price" class="form-control" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)"></div>
@@ -141,7 +141,7 @@
             </div>
             <div style="overflow-x: auto;">
                 <table>
-                    <thead><tr><th style="width: 40px; text-align:center;"><input type="checkbox" id="selectAll" checked onclick="toggleSelectAll(this)"></th><th>Thông tin khách</th><th align="right">Cần thu</th><th align="center">Xóa</th></tr></thead>
+                    <thead><tr><th style="width: 40px; text-align:center;"><input type="checkbox" id="selectAll" checked onclick="toggleSelectAll(this)"></th><th>Thông tin khách</th><th align="right">Cần thu</th><th align="center">Thao tác</th></tr></thead>
                     <tbody id="order-tbody"></tbody>
                 </table>
             </div>
@@ -158,6 +158,12 @@
         let productDatabase = [];
         let currentCart = [];
         let orderList = [];
+        let editingOrderId = null; // Biến lưu ID đơn đang sửa
+
+        // --- HÀM HỖ TRỢ XÓA DẤU TIẾNG VIỆT TỐI ƯU TÌM KIẾM ---
+        function removeAccents(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+        }
 
         // --- LOAD LIST TỪ LOCALSTORAGE ---
         function loadOrdersFromLocal() {
@@ -165,7 +171,6 @@
             if(saved) {
                 let parsed = JSON.parse(saved);
                 let today = new Date().toLocaleDateString('vi-VN');
-                // Chỉ lấy đơn của ngày hôm nay để tránh rác list
                 orderList = parsed.filter(o => o.date === today);
                 renderOrderList();
             }
@@ -174,7 +179,7 @@
 
         // --- GET DATA BẢNG GIÁ ---
         async function loadProductData() {
-            loadOrdersFromLocal(); // Load list đơn chờ in
+            loadOrdersFromLocal(); 
             const statusEl = document.getElementById('db-status');
             const proxies = [
                 (url) => url, 
@@ -209,20 +214,41 @@
 
         // --- XỬ LÝ TIỀN ---
         function formatMoney(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-        function formatInputMoney(i) { i.value = i.value.replace(/[^0-9]/g, '') ? formatMoney(parseInt(i.value.replace(/[^0-9]/g, ''))) : ""; updateTotals(); }
-        function autoMultiplyStr(i) {
-            let v = parseInt(i.value.replace(/[^0-9]/g, '')) || 0;
-            if (v > 0 && v < 1000) v *= 1000; // Nhập số < 1000 sẽ tự x1000
-            i.value = v ? formatMoney(v) : ""; updateTotals();
+        
+        function formatInputMoney(i) { 
+            let val = i.value.replace(/[^0-9]/g, '');
+            i.value = val === "" ? "" : formatMoney(parseInt(val)); 
+            updateTotals(); 
         }
+        
+        function autoMultiplyStr(i) {
+            if(i.value === "") return; // Cho phép trống
+            let v = parseInt(i.value.replace(/[^0-9]/g, ''));
+            if(isNaN(v)) return;
+            if (v > 0 && v < 1000) v *= 1000; 
+            i.value = formatMoney(v); // Cho phép hiển thị 0
+            updateTotals();
+        }
+        
         function getNum(id) { return parseInt(document.getElementById(id).value.replace(/[^0-9]/g, '')) || 0; }
 
-        // --- TÌM SẢN PHẨM ---
-        const inputSp = document.getElementById('prodName'); const listSugg = document.getElementById('suggestions');
+        // --- TÌM SẢN PHẨM (Đã tối ưu) ---
+        const inputSp = document.getElementById('prodName'); 
+        const listSugg = document.getElementById('suggestions');
+        
         inputSp.oninput = function() {
-            const kw = this.value.toLowerCase().trim(); listSugg.innerHTML = "";
+            const kw = removeAccents(this.value.trim()); 
+            listSugg.innerHTML = "";
             if(!kw) { listSugg.style.display='none'; return; }
-            const matched = productDatabase.filter(p => p.name.toLowerCase().includes(kw)).slice(0, 10);
+            
+            // Tách từ khóa để tìm kiếm linh hoạt hơn
+            const searchTerms = kw.split(' ');
+
+            const matched = productDatabase.filter(p => {
+                const pName = removeAccents(p.name);
+                return searchTerms.every(term => pName.includes(term));
+            }).slice(0, 25);
+
             if(matched.length) {
                 listSugg.style.display = 'block';
                 matched.forEach(p => {
@@ -230,20 +256,31 @@
                     li.innerHTML = `<span>${p.name}</span> <b style="color:var(--danger)">${formatMoney(p.price)}</b>`;
                     li.onclick = () => {
                         inputSp.value = p.name;
-                        document.getElementById('price').value = formatMoney(p.price); // Giá lấy thẳng từ DB
-                        listSugg.style.display = 'none'; document.getElementById('qty').focus(); updateTotals();
+                        document.getElementById('price').value = formatMoney(p.price);
+                        listSugg.style.display = 'none'; 
+                        document.getElementById('qty').focus(); 
+                        updateTotals();
                     };
                     listSugg.appendChild(li);
                 });
             } else listSugg.style.display='none';
         };
 
-        // --- GIỎ HÀNG ---
+        // --- GIỎ HÀNG (Đã fix lỗi giá 0đ) ---
         function addProduct() {
-            const name = inputSp.value, price = getNum('price'), qty = parseInt(document.getElementById('qty').value) || 1, note = document.getElementById('prodNote').value;
-            if(!name || price <= 0) return alert("Vui lòng điền đủ tên và giá!");
+            const name = inputSp.value.trim();
+            const priceInputStr = document.getElementById('price').value.trim();
+            const price = getNum('price');
+            const qty = parseInt(document.getElementById('qty').value) || 1;
+            const note = document.getElementById('prodNote').value;
+            
+            if(!name || priceInputStr === "") return alert("Vui lòng nhập tên sản phẩm và đơn giá (có thể nhập 0đ)!");
+            
             currentCart.push({ name, price, qty, total: price * qty, note });
-            inputSp.value = ""; document.getElementById('price').value = ""; document.getElementById('qty').value = "1"; document.getElementById('prodNote').value = "";
+            inputSp.value = ""; 
+            document.getElementById('price').value = ""; 
+            document.getElementById('qty').value = "1"; 
+            document.getElementById('prodNote').value = "";
             renderCart();
         }
 
@@ -269,7 +306,7 @@
             return { sum, final };
         }
 
-        // --- LƯU ĐƠN ---
+        // --- LƯU ĐƠN & SỬA ĐƠN ---
         function saveOrder() {
             const name = document.getElementById('cusName').value;
             if(!name || !currentCart.length) return alert("Vui lòng nhập tên khách và chọn ít nhất 1 sản phẩm!");
@@ -278,7 +315,9 @@
             btn.disabled = true; btn.innerText = "⏳ Đang lưu lên Sheet...";
 
             const res = updateTotals();
-            const orderId = Date.now().toString();
+            
+            const orderId = editingOrderId ? editingOrderId : Date.now().toString();
+            
             const data = {
                 action: 'save', orderId: orderId,
                 date: new Date().toLocaleDateString('vi-VN'), time: new Date().toLocaleTimeString('vi-VN'),
@@ -292,7 +331,6 @@
             .then(r => r.text())
             .then(resText => {
                 if(resText === "SUCCESS") {
-                    // Lưu thành công thì đưa xuống danh sách chờ in
                     orderList.unshift({...data, products: [...currentCart]});
                     saveOrdersToLocal();
                     renderOrderList();
@@ -307,7 +345,39 @@
         function resetForm(ask) {
             if(ask && !confirm("Làm mới toàn bộ thông tin đang nhập?")) return;
             currentCart = []; renderCart();
-            ["cusName", "cusPhone", "cusAddress", "shipFee", "deposit", "note", "prodName"].forEach(id => document.getElementById(id).value = "");
+            ["cusName", "cusPhone", "cusAddress", "shipFee", "deposit", "note", "prodName", "price", "prodNote"].forEach(id => document.getElementById(id).value = "");
+            document.getElementById("qty").value = "1";
+            editingOrderId = null;
+            document.getElementById('btnSave').innerText = "LƯU ĐƠN BẮN SHEET";
+        }
+
+        function editOrder(id) {
+            if(!confirm("Đưa đơn này lên form để chỉnh sửa?\nLưu ý: Đơn cũ sẽ được gỡ khỏi danh sách chờ in.")) return;
+            
+            let order = orderList.find(o => o.orderId === id);
+            if(!order) return;
+
+            document.getElementById('cusPhone').value = order.cusPhone;
+            document.getElementById('cusName').value = order.cusName;
+            document.getElementById('staffName').value = order.staffName;
+            document.getElementById('cusAddress').value = order.cusAddress;
+            document.getElementById('saleChannel').value = order.saleChannel;
+            
+            document.getElementById('shipFee').value = order.shipFee ? formatMoney(order.shipFee) : "";
+            document.getElementById('deposit').value = order.deposit ? formatMoney(order.deposit) : "";
+            document.getElementById('note').value = order.note;
+
+            currentCart = [...order.products];
+            renderCart();
+
+            editingOrderId = order.orderId;
+            document.getElementById('btnSave').innerText = "💾 LƯU LẠI ĐƠN ĐANG SỬA";
+
+            orderList = orderList.filter(o => o.orderId !== id);
+            saveOrdersToLocal();
+            renderOrderList();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // --- XỬ LÝ DANH SÁCH IN ---
@@ -323,7 +393,10 @@
                     <td align="center"><input type="checkbox" class="print-check" value="${o.orderId}" checked></td>
                     <td><b>${o.cusName}</b><div style="font-size:11px; color:var(--text-muted)">${o.saleChannel} - NV: ${o.staffName}</div></td>
                     <td align="right" style="color:var(--danger); font-weight:700;">${formatMoney(o.finalTotal)}</td>
-                    <td align="center"><button class="btn btn-outline btn-sm" onclick="removeOrderFromList('${o.orderId}')">🗑️</button></td>
+                    <td align="center" style="white-space: nowrap;">
+                        <button class="btn btn-outline btn-sm" style="margin-right:4px" onclick="editOrder('${o.orderId}')" title="Sửa đơn này">✏️</button>
+                        <button class="btn btn-outline btn-sm" onclick="removeOrderFromList('${o.orderId}')" title="Xóa khỏi list">🗑️</button>
+                    </td>
                 </tr>`;
             });
             document.getElementById('count').innerText = filtered.length;
@@ -356,7 +429,12 @@
                         <p>Nhân viên lên đơn: ${o.staffName}</p>
                     </div>
                     <table class="print-table">
-                        <tr><th align="left">Sản phẩm</th><th align="right">Giá</th><th align="center">SL</th><th align="right">T.Tiền</th></tr>
+                        <tr>
+                            <th align="left" style="width: 45%;">Sản phẩm</th>
+                            <th align="right" style="width: 20%;">Giá</th>
+                            <th align="center" style="width: 15%;">SL</th>
+                            <th align="right" style="width: 20%;">T.Tiền</th>
+                        </tr>
                         ${o.products.map(p => `<tr>
                             <td><b>${p.name}</b>${p.note ? `<div style="font-size:12px; margin-top:2px;">(Lưu ý: ${p.note})</div>` : ''}</td>
                             <td align="right">${formatMoney(p.price)}</td><td align="center">${p.qty}</td><td align="right">${formatMoney(p.total)}</td>
