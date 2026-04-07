@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Tone màu hiện đại (Indigo/Slate) */
             --primary: #4f46e5; 
             --primary-hover: #4338ca;
             --secondary: #3b82f6;
@@ -30,13 +29,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-size: 14px;}
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* HEADER & TABS */
         .app-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0; height: 60px; flex-shrink: 0; box-shadow: var(--shadow-md); z-index: 50;}
         .header-left { display: flex; align-items: center; height: 100%; }
         .brand-name { font-weight: 700; font-size: 17px; padding: 0 24px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;}
@@ -47,27 +44,21 @@
         .nav-tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
         .header-right { display: flex; align-items: center; gap: 15px; font-size: 14px; padding-right: 24px;}
         
-        /* Status Bar */
         #db-status { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 1000; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 6px; transition: 0.3s; }
         .status-loading { background: #fef3c7; color: #b45309; }
         .status-success { background: #d1fae5; color: #065f46; }
         .status-error { background: #fee2e2; color: #b91c1c; }
 
-        /* MAIN LAYOUT & TAB LOGIC */
         .main-content { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px;}
-        
         .tab-content { width: 100%; height: 100%; display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: flex; gap: 20px; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Left/Right Panels cho màn Bán hàng */
         .left-panel { flex: 2; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
         .right-panel { flex: 1; max-width: 420px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
-        
         .card { background: var(--bg-panel); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column;}
 
-        /* FORMS & INPUTS */
         .add-product-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;}
         .form-group { position: relative; }
         .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.3px;}
@@ -75,13 +66,11 @@
         .form-control:hover { background: #e2e8f0; }
         .form-control:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
         
-        /* Input nhóm bên phải */
         .input-group { position: relative; margin-bottom: 16px;}
         .input-group i { position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-size: 13px;}
         .input-group .form-control { padding-left: 38px; border: 1px solid var(--border-color); background: #fff;}
         .input-group .form-control:focus { border-color: var(--primary); }
 
-        /* BUTTONS */
         .btn { padding: 10px 18px; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;}
         .btn:active { transform: translateY(1px); }
         .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2); }
@@ -93,7 +82,6 @@
         .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text-muted); }
         .btn-outline:hover { background: var(--bg-input); color: var(--text-main); }
         
-        /* Autocomplete List */
         .autocomplete-container { flex: 3; min-width: 200px; position: relative; }
         .suggestions-list { position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); z-index: 1000; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); max-height: 280px; overflow-y: auto; display: none; list-style: none; }
         .suggestions-list li { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--bg-body); font-size: 13px; transition: 0.1s;}
@@ -101,7 +89,6 @@
         .suggestions-list li:last-child { border-bottom: none; }
         .suggestions-list li:hover { background: var(--bg-input); color: var(--primary); padding-left: 20px;}
 
-        /* Cart Table */
         .cart-container { flex: 1; overflow-y: auto; margin-top: 5px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff;}
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
@@ -109,7 +96,6 @@
         tr:hover td { background: var(--bg-body); }
         .cart-empty { text-align: center; color: var(--text-muted); padding: 60px 20px !important; font-style: italic; background: #fff !important;}
 
-        /* Right Panel Specifics */
         .right-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);}
         .right-panel-header select { border: none; font-weight: 600; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; background: transparent;}
 
@@ -121,15 +107,12 @@
 
         .btn-pay { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; border-radius: var(--radius-md); margin-top: 20px; letter-spacing: 0.5px; text-transform: uppercase;}
 
-        /* Order Management Tab */
         .om-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .om-title { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e0e7ff; color: var(--primary); }
 
-        /* Custom Checkbox */
         input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); border-radius: 4px;}
 
-        /* Print styles */
         @media print {
             .no-print, .app-header { display: none !important; }
             body { background: #fff; height: auto; overflow: visible; padding: 0;}
@@ -272,6 +255,7 @@
             </div>
             
         </div>
+
         <div id="tab-orders" class="tab-content">
             
             <div class="card order-management" style="width: 100%;">
@@ -309,13 +293,17 @@
             </div>
             
         </div>
-        </div>
+
+    </div>
 
     <div id="print-area"></div>
 
     <script>
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsF6sTL40fsBCmpLiQhIk3vSkh_NfecA0DfO0NOthHvMI3CoKLiAjgs6q0Sowi3inJDl6Teq12WuqJ/pub?gid=0&single=true&output=tsv";
-        const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz7f0qZ49J8qD7sSwfP3GkZzcueLjhtBxf2stcjx5otQ1ys7H8Sl1cPSJa2plVpQb93/exec";
+        const CUSTOMER_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzvewOG_O8zFTTq84z-ZAx59v2ObiXvoAdXv8PWBOHTGdcrh8CnydkwF5LAwuvyBWsIO2G-NovN9jp/pub?gid=1119396087&single=true&output=tsv"; 
+        
+        // ĐÃ CẬP NHẬT WEBAPP SCRIPT MỚI NHẤT
+        const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyLoEsUqmub4KqO_vfizZpfqWBgfuYT7yWKX64iA5SA3aFdnfQcskZ9mL60lcLRITqE/exec";
         
         let productDatabase = [];
         let customerDatabase = []; 
@@ -324,14 +312,9 @@
         let editingOrderId = null; 
         let selectedPrintIds = new Set(); 
 
-        // CHUYỂN TAB ĐÃ ĐƯỢC TỐI ƯU LẠI LOGIC ẨN/HIỆN ĐỂ TRÁNH LỖI GIAO DIỆN
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            
-            // Kích hoạt tab đích
             document.getElementById('tab-' + tabId).classList.add('active');
             document.querySelectorAll('.nav-tab').forEach(el => {
                 if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
@@ -347,7 +330,6 @@
             customerDatabase = []; 
             if(saved) {
                 let parsed = JSON.parse(saved);
-                
                 let map = new Map();
                 parsed.forEach(o => {
                     if (o.cusPhone && !map.has(o.cusPhone)) {
@@ -355,7 +337,6 @@
                     }
                 });
                 customerDatabase = Array.from(map.values());
-
                 let today = new Date().toLocaleDateString('vi-VN');
                 orderList = parsed.filter(o => o.date === today);
                 selectedPrintIds.clear(); 
@@ -364,58 +345,65 @@
         }
         function saveOrdersToLocal() { localStorage.setItem('hongnhien_orders_v3', JSON.stringify(orderList)); }
 
-        async function loadProductData() {
+        async function loadAppData() {
             loadOrdersFromLocal(); 
             const statusEl = document.getElementById('db-status');
-            
-            const proxies = [
-                "", 
-                "https://api.allorigins.win/raw?url=", 
-                "https://corsproxy.io/?",
-                "https://api.codetabs.com/v1/proxy?quest="
-            ];
+            const proxies = ["", "https://api.allorigins.win/raw?url=", "https://corsproxy.io/?", "https://api.codetabs.com/v1/proxy?quest="];
 
-            let success = false;
+            let successProd = false;
 
             for (let prefix of proxies) {
                 try {
                     let targetUrl = prefix ? prefix + encodeURIComponent(SHEET_URL) : SHEET_URL;
                     let res = await fetch(targetUrl);
                     if (!res.ok) continue;
-                    
                     let text = await res.text();
-
                     if (text && text.includes('\t')) {
                         const lines = text.split('\n').filter(line => line.trim() !== '');
-                        const dataLines = lines.slice(1);
-                        
-                        productDatabase = dataLines.map(line => {
+                        productDatabase = lines.slice(1).map(line => {
                             const cols = line.split('\t');
-                            return { 
-                                name: cols[0] ? cols[0].trim() : '', 
-                                price: cols[1] ? parseInt(cols[1].replace(/[^0-9]/g, '')) || 0 : 0 
-                            };
+                            return { name: cols[0] ? cols[0].trim() : '', price: cols[1] ? parseInt(cols[1].replace(/[^0-9]/g, '')) || 0 : 0 };
                         }).filter(p => p.name !== '');
-                        
-                        statusEl.className = "status-success"; 
-                        statusEl.innerHTML = `<i class="fa-solid fa-check"></i> Đã tải ${productDatabase.length} sản phẩm & ${customerDatabase.length} khách cũ`;
-                        setTimeout(() => statusEl.style.display = 'none', 3000);
-                        success = true;
-                        break; 
+                        successProd = true; break; 
                     }
-                } catch (e) {
-                    console.warn("Proxy failed:", prefix);
+                } catch (e) { }
+            }
+
+            if(CUSTOMER_SHEET_URL) {
+                for (let prefix of proxies) {
+                    try {
+                        let targetUrl = prefix ? prefix + encodeURIComponent(CUSTOMER_SHEET_URL) : CUSTOMER_SHEET_URL;
+                        let res = await fetch(targetUrl);
+                        if (!res.ok) continue;
+                        let text = await res.text();
+                        if (text && text.includes('\t')) {
+                            const lines = text.split('\n').filter(line => line.trim() !== '');
+                            let map = new Map();
+                            lines.slice(1).forEach(line => {
+                                let cols = line.split('\t');
+                                let phone = cols[0] ? cols[0].trim() : '';
+                                let name = cols[1] ? cols[1].trim() : '';
+                                let address = cols[2] ? cols[2].trim() : '';
+                                if(phone && !map.has(phone)) { map.set(phone, {phone, name, address}); }
+                            });
+                            customerDatabase.forEach(c => map.set(c.phone, c));
+                            customerDatabase = Array.from(map.values()); break; 
+                        }
+                    } catch (e) { }
                 }
             }
 
-            if (!success) {
+            if (successProd) {
+                statusEl.className = "status-success"; 
+                statusEl.innerHTML = `<i class="fa-solid fa-check"></i> Đã tải ${productDatabase.length} SP & ${customerDatabase.length} KH`;
+                setTimeout(() => statusEl.style.display = 'none', 3000);
+            } else {
                 statusEl.className = "status-error"; 
-                statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Không thể lấy dữ liệu sản phẩm. Vui lòng tải lại trang (F5)!';
+                statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Lỗi lấy dữ liệu. Vui lòng tải lại trang (F5)!';
             }
         }
-        window.onload = loadProductData;
+        window.onload = loadAppData;
 
-        // XỬ LÝ TIỀN
         function formatMoney(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
         function formatInputMoney(i) { 
             let val = i.value.replace(/[^0-9]/g, '');
@@ -432,7 +420,6 @@
         }
         function getNum(id) { return parseInt(document.getElementById(id).value.replace(/[^0-9]/g, '')) || 0; }
 
-        // --- GỢI Ý KHÁCH HÀNG CŨ ---
         const inputPhone = document.getElementById('cusPhone');
         const listCusSugg = document.getElementById('cus-suggestions');
 
@@ -440,27 +427,15 @@
             const kw = this.value.trim().replace(/[^0-9]/g, ''); 
             listCusSugg.innerHTML = "";
             if(!kw || kw.length < 2) { listCusSugg.style.display = 'none'; return; }
-
             const matched = customerDatabase.filter(c => c.phone.includes(kw)).slice(0, 10);
-
             if(matched.length) {
                 listCusSugg.style.display = 'block';
                 matched.forEach(c => {
                     const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:4px;">
-                            <b style="color:var(--text-main)">${c.phone}</b> <span style="color:var(--primary); font-weight:600;">${c.name}</span>
-                        </div>
-                        <div style="font-size:12px; color:var(--text-muted);">
-                            <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i> ${c.address || 'Không có địa chỉ'}
-                        </div>
-                    `;
+                    li.innerHTML = `<div style="display:flex; justify-content:space-between; width:100%; margin-bottom:4px;"><b style="color:var(--text-main)">${c.phone}</b> <span style="color:var(--primary); font-weight:600;">${c.name}</span></div><div style="font-size:12px; color:var(--text-muted);"><i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i> ${c.address || 'Không có địa chỉ'}</div>`;
                     li.onclick = () => {
-                        inputPhone.value = c.phone;
-                        document.getElementById('cusName').value = c.name;
-                        document.getElementById('cusAddress').value = c.address;
-                        listCusSugg.style.display = 'none';
-                        document.getElementById('saleChannel').focus();
+                        inputPhone.value = c.phone; document.getElementById('cusName').value = c.name; document.getElementById('cusAddress').value = c.address;
+                        listCusSugg.style.display = 'none'; document.getElementById('saleChannel').focus();
                     };
                     listCusSugg.appendChild(li);
                 });
@@ -472,7 +447,6 @@
             if (e.target !== document.getElementById('prodName')) { document.getElementById('suggestions').style.display = 'none'; }
         });
 
-        // TÌM SẢN PHẨM
         const inputSp = document.getElementById('prodName'); 
         const listSugg = document.getElementById('suggestions');
         
@@ -480,48 +454,27 @@
             const kw = removeAccents(this.value.trim()); 
             listSugg.innerHTML = "";
             if(!kw) { listSugg.style.display='none'; return; }
-            
             const searchTerms = kw.split(' ');
             const matched = productDatabase.filter(p => {
                 const pName = removeAccents(p.name);
                 return searchTerms.every(term => pName.includes(term));
             }).slice(0, 25);
-
             if(matched.length) {
                 listSugg.style.display = 'block';
                 matched.forEach(p => {
-                    const li = document.createElement('li');
-                    li.className = 'flex-row';
+                    const li = document.createElement('li'); li.className = 'flex-row';
                     li.innerHTML = `<span style="font-weight:500; color:var(--text-main);">${p.name}</span> <b style="color:var(--primary)">${formatMoney(p.price)}</b>`;
-                    li.onclick = () => {
-                        inputSp.value = p.name;
-                        document.getElementById('price').value = formatMoney(p.price);
-                        listSugg.style.display = 'none'; 
-                        document.getElementById('qty').focus(); 
-                        updateTotals();
-                    };
+                    li.onclick = () => { inputSp.value = p.name; document.getElementById('price').value = formatMoney(p.price); listSugg.style.display = 'none'; document.getElementById('qty').focus(); updateTotals(); };
                     listSugg.appendChild(li);
                 });
             } else listSugg.style.display='none';
         };
 
-        // GIỎ HÀNG
         function addProduct() {
-            const name = inputSp.value.trim();
-            const priceInputStr = document.getElementById('price').value.trim();
-            const price = getNum('price');
-            const qty = parseInt(document.getElementById('qty').value) || 1;
-            const note = document.getElementById('prodNote').value;
-            
+            const name = inputSp.value.trim(); const priceInputStr = document.getElementById('price').value.trim(); const price = getNum('price'); const qty = parseInt(document.getElementById('qty').value) || 1; const note = document.getElementById('prodNote').value;
             if(!name || priceInputStr === "") return alert("Vui lòng nhập tên sản phẩm và đơn giá!");
-            
             currentCart.push({ name, price, qty, total: price * qty, note });
-            inputSp.value = ""; 
-            document.getElementById('price').value = ""; 
-            document.getElementById('qty').value = "1"; 
-            document.getElementById('prodNote').value = "";
-            inputSp.focus();
-            renderCart();
+            inputSp.value = ""; document.getElementById('price').value = ""; document.getElementById('qty').value = "1"; document.getElementById('prodNote').value = ""; inputSp.focus(); renderCart();
         }
 
         function renderCart() {
@@ -529,204 +482,65 @@
             if(!currentCart.length) { tb.innerHTML = '<tr><td colspan="5" class="cart-empty"><i class="fa-solid fa-box-open" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>Chưa có sản phẩm nào trong giỏ hàng</td></tr>'; }
             currentCart.forEach((p, i) => {
                 sum += p.total;
-                tb.innerHTML += `<tr>
-                    <td><b style="color:var(--text-main); font-size:14px;">${p.name}</b>${p.note ? `<br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-pen-nib" style="font-size:10px;"></i> ${p.note}</small>` : ''}</td>
-                    <td align="right" style="color:var(--text-muted);">${formatMoney(p.price)}</td>
-                    <td align="center"><span style="background:var(--bg-input); padding:4px 10px; border-radius:4px; font-weight:600;">${p.qty}</span></td>
-                    <td align="right" style="font-weight:700; color:var(--text-main);">${formatMoney(p.total)}</td>
-                    <td align="center"><button class="btn btn-outline" style="padding: 6px 10px; color: var(--danger); border: none;" onclick="currentCart.splice(${i},1);renderCart()"><i class="fa-solid fa-trash-can"></i></button></td>
-                </tr>`;
+                tb.innerHTML += `<tr><td><b style="color:var(--text-main); font-size:14px;">${p.name}</b>${p.note ? `<br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-pen-nib" style="font-size:10px;"></i> ${p.note}</small>` : ''}</td><td align="right" style="color:var(--text-muted);">${formatMoney(p.price)}</td><td align="center"><span style="background:var(--bg-input); padding:4px 10px; border-radius:4px; font-weight:600;">${p.qty}</span></td><td align="right" style="font-weight:700; color:var(--text-main);">${formatMoney(p.total)}</td><td align="center"><button class="btn btn-outline" style="padding: 6px 10px; color: var(--danger); border: none;" onclick="currentCart.splice(${i},1);renderCart()"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
             });
             document.getElementById('lbl-sum-items').innerText = formatMoney(sum); updateTotals();
         }
 
         function updateTotals() {
-            const sum = currentCart.reduce((s, p) => s + p.total, 0);
-            const final = sum + getNum('shipFee') - getNum('deposit');
-            document.getElementById('lbl-final-total').innerText = formatMoney(final);
-            return { sum, final };
+            const sum = currentCart.reduce((s, p) => s + p.total, 0); const final = sum + getNum('shipFee') - getNum('deposit');
+            document.getElementById('lbl-final-total').innerText = formatMoney(final); return { sum, final };
         }
 
-        // LƯU ĐƠN
         function saveOrder() {
-            const name = document.getElementById('cusName').value;
-            const phone = document.getElementById('cusPhone').value;
+            const name = document.getElementById('cusName').value; const phone = document.getElementById('cusPhone').value;
             if(!name || !currentCart.length) return alert("Vui lòng nhập tên khách và chọn ít nhất 1 sản phẩm!");
-            
-            const btn = document.getElementById('btnSave');
-            btn.disabled = true; btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='margin-right:8px;'></i> Đang lưu lên Sheet...";
-
-            const res = updateTotals();
-            const orderId = editingOrderId ? editingOrderId : Date.now().toString();
-            
-            const data = {
-                action: 'save', orderId: orderId,
-                date: new Date().toLocaleDateString('vi-VN'), time: new Date().toLocaleTimeString('vi-VN'),
-                cusName: name, cusPhone: phone, cusAddress: document.getElementById('cusAddress').value,
-                staffName: document.getElementById('staffName').value, saleChannel: document.getElementById('saleChannel').value,
-                spString: currentCart.map(p => `${p.name} ${p.note ? '['+p.note+']' : ''} (${formatMoney(p.price)}x${p.qty})`).join("\n"),
-                sumItems: res.sum, shipFee: getNum('shipFee'), deposit: getNum('deposit'), finalTotal: res.final, note: document.getElementById('note').value
-            };
-
-            fetch(WEBAPP_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data).toString() })
-            .then(r => r.text())
-            .then(resText => {
-                if(resText === "SUCCESS") {
-                    orderList.unshift({...data, products: [...currentCart]});
-                    
-                    if(phone && !customerDatabase.some(c => c.phone === phone)) {
-                        customerDatabase.push({phone: phone, name: name, address: data.cusAddress});
-                    }
-                    
-                    saveOrdersToLocal();
-                    renderOrderList();
-                    resetForm();
-                    alert("Đã lưu đơn thành công!");
-                } else { alert("Lỗi từ Google: " + resText); }
-            })
-            .catch(() => alert("Lỗi kết nối mạng, không thể lưu!"))
-            .finally(() => { btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET"; });
+            const btn = document.getElementById('btnSave'); btn.disabled = true; btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='margin-right:8px;'></i> Đang lưu lên Sheet...";
+            const res = updateTotals(); const orderId = editingOrderId ? editingOrderId : Date.now().toString();
+            const data = { action: 'save', orderId: orderId, date: new Date().toLocaleDateString('vi-VN'), time: new Date().toLocaleTimeString('vi-VN'), cusName: name, cusPhone: phone, cusAddress: document.getElementById('cusAddress').value, staffName: document.getElementById('staffName').value, saleChannel: document.getElementById('saleChannel').value, spString: currentCart.map(p => `${p.name} ${p.note ? '['+p.note+']' : ''} (${formatMoney(p.price)}x${p.qty})`).join("\n"), sumItems: res.sum, shipFee: getNum('shipFee'), deposit: getNum('deposit'), finalTotal: res.final, note: document.getElementById('note').value };
+            fetch(WEBAPP_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data).toString() }).then(r => r.text()).then(resText => {
+                if(resText === "SUCCESS") { orderList.unshift({...data, products: [...currentCart]}); if(phone && !customerDatabase.some(c => c.phone === phone)) { customerDatabase.push({phone: phone, name: name, address: data.cusAddress}); } saveOrdersToLocal(); renderOrderList(); resetForm(); alert("Đã lưu đơn thành công!"); } else { alert("Lỗi từ Google: " + resText); }
+            }).catch(() => alert("Lỗi kết nối mạng, không thể lưu!")).finally(() => { btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET"; });
         }
 
         function resetForm(ask) {
             if(ask && !confirm("Làm mới toàn bộ thông tin đang nhập?")) return;
-            currentCart = []; renderCart();
-            ["cusName", "cusPhone", "cusAddress", "shipFee", "deposit", "note", "prodName", "price", "prodNote"].forEach(id => document.getElementById(id).value = "");
-            document.getElementById("qty").value = "1";
-            editingOrderId = null;
-            document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET";
+            currentCart = []; renderCart(); ["cusName", "cusPhone", "cusAddress", "shipFee", "deposit", "note", "prodName", "price", "prodNote"].forEach(id => document.getElementById(id).value = "");
+            document.getElementById("qty").value = "1"; editingOrderId = null; document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET";
         }
 
-        // SỬA ĐƠN
         function editOrder(id) {
             if(!confirm("Đưa đơn này lên form để chỉnh sửa?\nLưu ý: Đơn cũ sẽ được gỡ khỏi danh sách chờ in.")) return;
-            switchTab('pos');
-            
-            let order = orderList.find(o => o.orderId === id);
-            if(!order) return;
-
-            document.getElementById('cusPhone').value = order.cusPhone;
-            document.getElementById('cusName').value = order.cusName;
-            document.getElementById('staffName').value = order.staffName;
-            document.getElementById('cusAddress').value = order.cusAddress;
-            document.getElementById('saleChannel').value = order.saleChannel;
-            
-            document.getElementById('shipFee').value = order.shipFee ? formatMoney(order.shipFee) : "";
-            document.getElementById('deposit').value = order.deposit ? formatMoney(order.deposit) : "";
-            document.getElementById('note').value = order.note;
-
-            currentCart = [...order.products];
-            renderCart();
-
-            editingOrderId = order.orderId;
-            document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-floppy-disk' style='margin-right:8px;'></i> CẬP NHẬT ĐƠN SỬA";
-
-            orderList = orderList.filter(o => o.orderId !== id);
-            selectedPrintIds.delete(id);
-            saveOrdersToLocal();
-            renderOrderList();
+            switchTab('pos'); let order = orderList.find(o => o.orderId === id); if(!order) return;
+            document.getElementById('cusPhone').value = order.cusPhone; document.getElementById('cusName').value = order.cusName; document.getElementById('staffName').value = order.staffName; document.getElementById('cusAddress').value = order.cusAddress; document.getElementById('saleChannel').value = order.saleChannel;
+            document.getElementById('shipFee').value = order.shipFee ? formatMoney(order.shipFee) : ""; document.getElementById('deposit').value = order.deposit ? formatMoney(order.deposit) : ""; document.getElementById('note').value = order.note;
+            currentCart = [...order.products]; renderCart(); editingOrderId = order.orderId; document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-floppy-disk' style='margin-right:8px;'></i> CẬP NHẬT ĐƠN SỬA";
+            orderList = orderList.filter(o => o.orderId !== id); selectedPrintIds.delete(id); saveOrdersToLocal(); renderOrderList();
         }
 
-        // TICK CHỌN IN
-        function toggleSingleSelect(cb) {
-            if(cb.checked) selectedPrintIds.add(cb.value);
-            else selectedPrintIds.delete(cb.value);
-            updateSelectAllState();
-        }
+        function toggleSingleSelect(cb) { if(cb.checked) selectedPrintIds.add(cb.value); else selectedPrintIds.delete(cb.value); updateSelectAllState(); }
+        function toggleSelectAll(s) { document.querySelectorAll('.print-check').forEach(cb => { cb.checked = s.checked; if(s.checked) selectedPrintIds.add(cb.value); else selectedPrintIds.delete(cb.value); }); }
+        function updateSelectAllState() { const allChecks = document.querySelectorAll('.print-check'); const selectAllCb = document.getElementById('selectAll'); if(allChecks.length === 0) { selectAllCb.checked = false; return; } const allChecked = Array.from(allChecks).every(cb => cb.checked); selectAllCb.checked = allChecked; }
 
-        function toggleSelectAll(s) {
-            document.querySelectorAll('.print-check').forEach(cb => {
-                cb.checked = s.checked;
-                if(s.checked) selectedPrintIds.add(cb.value);
-                else selectedPrintIds.delete(cb.value);
-            });
-        }
-
-        function updateSelectAllState() {
-            const allChecks = document.querySelectorAll('.print-check');
-            const selectAllCb = document.getElementById('selectAll');
-            if(allChecks.length === 0) { selectAllCb.checked = false; return; }
-            const allChecked = Array.from(allChecks).every(cb => cb.checked);
-            selectAllCb.checked = allChecked;
-        }
-
-        // QUẢN LÝ ĐƠN
         function renderOrderList() {
-            const tb = document.getElementById('order-tbody'); tb.innerHTML = "";
-            let kw = document.getElementById('searchOrderInput').value.toLowerCase();
-            
+            const tb = document.getElementById('order-tbody'); tb.innerHTML = ""; let kw = document.getElementById('searchOrderInput').value.toLowerCase();
             let filtered = orderList.filter(o => o.cusName.toLowerCase().includes(kw));
             if(!filtered.length) { tb.innerHTML = `<tr><td colspan="5" class="cart-empty"><i class="fa-solid fa-magnifying-glass" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>Không có đơn nào phù hợp</td></tr>`; }
-            
             filtered.forEach(o => {
-                // Đảm bảo đơn nào đã được tick thì vẫn giữ nguyên dấu tick
                 const isChecked = selectedPrintIds.has(o.orderId) ? 'checked' : '';
-                
-                tb.innerHTML += `<tr>
-                    <td align="center"><input type="checkbox" class="print-check" value="${o.orderId}" onchange="toggleSingleSelect(this)" ${isChecked}></td>
-                    <td><b style="color:var(--text-main); font-size:14px;">${o.cusName}</b><br><small style="color:var(--text-muted); margin-top:4px; display:inline-block;"><i class="fa-solid fa-phone" style="font-size:10px; margin-right:4px;"></i> ${o.cusPhone}</small></td>
-                    <td><span class="badge">${o.saleChannel}</span><br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-user-tie" style="font-size:10px; margin-right:4px;"></i> ${o.staffName}</small></td>
-                    <td align="right" style="color:var(--primary); font-weight:700; font-size: 15px;">${formatMoney(o.finalTotal)}</td>
-                    <td align="center">
-                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="editOrder('${o.orderId}')" title="Sửa đơn"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn btn-outline" style="padding: 6px 12px; color:var(--danger);" onclick="removeOrderFromList('${o.orderId}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                </tr>`;
+                tb.innerHTML += `<tr><td align="center"><input type="checkbox" class="print-check" value="${o.orderId}" onchange="toggleSingleSelect(this)" ${isChecked}></td><td><b style="color:var(--text-main); font-size:14px;">${o.cusName}</b><br><small style="color:var(--text-muted); margin-top:4px; display:inline-block;"><i class="fa-solid fa-phone" style="font-size:10px; margin-right:4px;"></i> ${o.cusPhone}</small></td><td><span class="badge">${o.saleChannel}</span><br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-user-tie" style="font-size:10px; margin-right:4px;"></i> ${o.staffName}</small></td><td align="right" style="color:var(--primary); font-weight:700; font-size: 15px;">${formatMoney(o.finalTotal)}</td><td align="center"><button class="btn btn-outline" style="padding: 6px 12px;" onclick="editOrder('${o.orderId}')" title="Sửa đơn"><i class="fa-solid fa-pen-to-square"></i></button><button class="btn btn-outline" style="padding: 6px 12px; color:var(--danger);" onclick="removeOrderFromList('${o.orderId}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
             });
-            
-            document.getElementById('count').innerText = filtered.length;
-            updateSelectAllState();
+            document.getElementById('count').innerText = filtered.length; updateSelectAllState();
         }
 
         function filterOrderList() { renderOrderList(); }
-        
-        function removeOrderFromList(id) { 
-            if(confirm("Bỏ đơn này khỏi danh sách in? (Không ảnh hưởng đến file Sheet)")) {
-                orderList = orderList.filter(o => o.orderId !== id);
-                selectedPrintIds.delete(id);
-                saveOrdersToLocal(); 
-                renderOrderList();
-            }
-        }
+        function removeOrderFromList(id) { if(confirm("Bỏ đơn này khỏi danh sách in? (Không ảnh hưởng đến file Sheet)")) { orderList = orderList.filter(o => o.orderId !== id); selectedPrintIds.delete(id); saveOrdersToLocal(); renderOrderList(); } }
 
-        // IN ẤN
         function printSelectedOrders() {
-            let ids = Array.from(selectedPrintIds);
-            if(ids.length === 0) return alert("Vui lòng tích chọn ít nhất 1 đơn để in!");
-            
-            let listToPrint = orderList.filter(o => ids.includes(o.orderId));
-            let area = document.getElementById('print-area'); area.innerHTML = "";
-            
+            let ids = Array.from(selectedPrintIds); if(ids.length === 0) return alert("Vui lòng tích chọn ít nhất 1 đơn để in!");
+            let listToPrint = orderList.filter(o => ids.includes(o.orderId)); let area = document.getElementById('print-area'); area.innerHTML = "";
             listToPrint.forEach(o => {
-                area.innerHTML += `
-                <div class="receipt-page">
-                    <div class="print-header"><h2>PHIẾU GIAO HÀNG</h2><p>Mã đơn: ${o.orderId.slice(-6)} | Ngày: ${o.date}</p></div>
-                    <div style="margin-bottom:10px">
-                        <p>Khách hàng: <b>${o.cusName.toUpperCase()}</b> - ${o.cusPhone}</p>
-                        <p>Địa chỉ: ${o.cusAddress} (${o.saleChannel})</p>
-                        <p>Nhân viên lên đơn: ${o.staffName}</p>
-                    </div>
-                    <table class="print-table">
-                        <tr>
-                            <th align="left" style="width: 45%;">Sản phẩm</th>
-                            <th align="right" style="width: 20%;">Giá</th>
-                            <th align="center" style="width: 15%;">SL</th>
-                            <th align="right" style="width: 20%;">T.Tiền</th>
-                        </tr>
-                        ${o.products.map(p => `<tr>
-                            <td><b>${p.name}</b>${p.note ? `<div style="font-size:12px; margin-top:2px;">(Lưu ý: ${p.note})</div>` : ''}</td>
-                            <td align="right">${formatMoney(p.price)}</td><td align="center">${p.qty}</td><td align="right">${formatMoney(p.total)}</td>
-                        </tr>`).join('')}
-                    </table>
-                    <div style="text-align:right; margin-top:15px; line-height: 1.6;">
-                        <p>Tiền hàng: ${formatMoney(o.sumItems)}đ</p>
-                        ${o.shipFee > 0 ? `<p>Phí ship: +${formatMoney(o.shipFee)}đ</p>` : ''}
-                        ${o.deposit > 0 ? `<p>Đã cọc: -${formatMoney(o.deposit)}đ</p>` : ''}
-                        <p style="font-size:18px; margin-top:5px;"><b>TỔNG THU: ${formatMoney(o.finalTotal)}đ</b></p>
-                    </div>
-                    ${o.note ? `<div style="margin-top:15px; border:1px dashed #000; padding:8px;"><b>Ghi chú:</b> ${o.note}</div>` : ''}
-                    <div style="text-align:center; margin-top:20px; font-style:italic">M.X.D Hồng Nhiên Cảm Ơn Quý Khách!</div>
-                </div>`;
+                area.innerHTML += `<div class="receipt-page"><div class="print-header"><h2>PHIẾU GIAO HÀNG</h2><p>Mã đơn: ${o.orderId.slice(-6)} | Ngày: ${o.date}</p></div><div style="margin-bottom:10px"><p>Khách hàng: <b>${o.cusName.toUpperCase()}</b> - ${o.cusPhone}</p><p>Địa chỉ: ${o.cusAddress} (${o.saleChannel})</p><p>Nhân viên lên đơn: ${o.staffName}</p></div><table class="print-table"><tr><th align="left" style="width: 45%;">Sản phẩm</th><th align="right" style="width: 20%;">Giá</th><th align="center" style="width: 15%;">SL</th><th align="right" style="width: 20%;">T.Tiền</th></tr>${o.products.map(p => `<tr><td><b>${p.name}</b>${p.note ? `<div style="font-size:12px; margin-top:2px;">(Lưu ý: ${p.note})</div>` : ''}</td><td align="right">${formatMoney(p.price)}</td><td align="center">${p.qty}</td><td align="right">${formatMoney(p.total)}</td></tr>`).join('')}</table><div style="text-align:right; margin-top:15px; line-height: 1.6;"><p>Tiền hàng: ${formatMoney(o.sumItems)}đ</p>${o.shipFee > 0 ? `<p>Phí ship: +${formatMoney(o.shipFee)}đ</p>` : ''}${o.deposit > 0 ? `<p>Đã cọc: -${formatMoney(o.deposit)}đ</p>` : ''}<p style="font-size:18px; margin-top:5px;"><b>TỔNG THU: ${formatMoney(o.finalTotal)}đ</b></p></div>${o.note ? `<div style="margin-top:15px; border:1px dashed #000; padding:8px;"><b>Ghi chú:</b> ${o.note}</div>` : ''}<div style="text-align:center; margin-top:20px; font-style:italic">M.X.D Hồng Nhiên Cảm Ơn Quý Khách!</div></div>`;
             });
             window.print();
         }
