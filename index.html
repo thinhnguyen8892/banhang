@@ -4,150 +4,312 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>M.X.D Hồng Nhiên - Lên Đơn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb; --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
-            --text-main: #1e293b; --text-muted: #64748b; --bg-body: #f1f5f9;
-            --border-color: #e2e8f0; --radius-md: 10px;
+            /* Tone màu hiện đại (Indigo/Slate) */
+            --primary: #4f46e5; 
+            --primary-hover: #4338ca;
+            --secondary: #3b82f6;
+            --danger: #ef4444; 
+            --success: #10b981; 
+            --text-main: #1e293b; 
+            --text-muted: #64748b; 
+            --bg-body: #f8fafc;
+            --bg-input: #f1f5f9;
+            --border-color: #e2e8f0; 
+            --bg-panel: #ffffff;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-body); color: var(--text-main); padding: 10px; line-height: 1.5; }
-        .container { max-width: 900px; margin: auto; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-size: 14px;}
         
-        /* Status */
-        #db-status { padding: 8px; text-align: center; border-radius: 8px; margin-bottom: 10px; font-size: 13px; font-weight: 600; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* HEADER & TABS */
+        .app-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0; height: 60px; flex-shrink: 0; box-shadow: var(--shadow-md); z-index: 50;}
+        .header-left { display: flex; align-items: center; height: 100%; }
+        .brand-name { font-weight: 700; font-size: 17px; padding: 0 24px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;}
+        .nav-tabs { display: flex; height: 100%; }
+        .nav-tab { background: transparent; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 0 24px; font-weight: 500; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; position: relative;}
+        .nav-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+        .nav-tab.active { color: white; background: rgba(255,255,255,0.15); font-weight: 600;}
+        .nav-tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+        .header-right { display: flex; align-items: center; gap: 15px; font-size: 14px; padding-right: 24px;}
+        
+        /* Status Bar */
+        #db-status { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 1000; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 6px; transition: 0.3s; }
         .status-loading { background: #fef3c7; color: #b45309; }
         .status-success { background: #d1fae5; color: #065f46; }
         .status-error { background: #fee2e2; color: #b91c1c; }
 
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); }
-        .card-title { font-weight: 700; color: var(--primary); text-transform: uppercase; font-size: 13px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        /* MAIN LAYOUT & TAB LOGIC */
+        .main-content { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px;}
         
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 12px; color: #475569; }
-        .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); font-size: 14px; outline: none; transition: 0.2s; }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .tab-content { width: 100%; height: 100%; display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: flex; gap: 20px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Left/Right Panels cho màn Bán hàng */
+        .left-panel { flex: 2; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        .right-panel { flex: 1; max-width: 420px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        
+        .card { background: var(--bg-panel); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column;}
 
-        .row { display: flex; flex-wrap: wrap; gap: 10px; }
-        .col { flex: 1; min-width: 180px; }
-        .col-2 { flex: 2; min-width: 250px; }
+        /* FORMS & INPUTS */
+        .add-product-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;}
+        .form-group { position: relative; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.3px;}
+        .form-control { width: 100%; padding: 10px 14px; background: var(--bg-input); border: 1px solid transparent; border-radius: var(--radius-md); font-size: 14px; color: var(--text-main); outline: none; transition: all 0.2s ease; }
+        .form-control:hover { background: #e2e8f0; }
+        .form-control:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+        
+        /* Input nhóm bên phải */
+        .input-group { position: relative; margin-bottom: 16px;}
+        .input-group i { position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-size: 13px;}
+        .input-group .form-control { padding-left: 38px; border: 1px solid var(--border-color); background: #fff;}
+        .input-group .form-control:focus { border-color: var(--primary); }
 
-        .btn { padding: 12px; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; transition: 0.2s;}
-        .btn-primary { background: var(--primary); color: #fff; }
+        /* BUTTONS */
+        .btn { padding: 10px 18px; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;}
+        .btn:active { transform: translateY(1px); }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2); }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3); }
         .btn-success { background: var(--success); color: #fff; }
-        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #fee2e2; color: var(--danger); padding: 6px 12px; font-size: 13px; border-radius: 6px;}
+        .btn-danger:hover { background: var(--danger); color: white; }
         .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text-muted); }
-        .btn-sm { padding: 6px 10px; font-size: 12px; width: auto; }
+        .btn-outline:hover { background: var(--bg-input); color: var(--text-main); }
+        
+        /* Autocomplete List */
+        .autocomplete-container { flex: 3; min-width: 200px; position: relative; }
+        .suggestions-list { position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); z-index: 1000; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); max-height: 280px; overflow-y: auto; display: none; list-style: none; }
+        .suggestions-list li { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--bg-body); font-size: 13px; transition: 0.1s;}
+        .suggestions-list li.flex-row { display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+        .suggestions-list li:last-child { border-bottom: none; }
+        .suggestions-list li:hover { background: var(--bg-input); color: var(--primary); padding-left: 20px;}
 
-        /* Autocomplete */
-        .autocomplete-container { position: relative; }
-        .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); z-index: 1000; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; display: none; list-style: none; }
-        .suggestions-list li { padding: 10px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 13px; }
-        .suggestions-list li:hover { background: #f1f5f9; }
+        /* Cart Table */
+        .cart-container { flex: 1; overflow-y: auto; margin-top: 5px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff;}
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-body); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 10;}
+        tr:hover td { background: var(--bg-body); }
+        .cart-empty { text-align: center; color: var(--text-muted); padding: 60px 20px !important; font-style: italic; background: #fff !important;}
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; font-size: 13px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background: #f8fafc; color: var(--text-muted); text-transform: uppercase; font-size: 11px; }
+        /* Right Panel Specifics */
+        .right-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);}
+        .right-panel-header select { border: none; font-weight: 600; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; background: transparent;}
 
-        .preview-box { background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px solid #bbf7d0; margin-top: 15px; text-align: center; }
-        .final-amount { font-size: 24px; font-weight: 800; color: #166534; }
+        .summary-totals { display: flex; flex-direction: column; gap: 12px; background: var(--bg-body); padding: 15px; border-radius: var(--radius-md); margin-top: 10px;}
+        .total-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-main); font-weight: 500;}
+        .total-row input { width: 110px; text-align: right; padding: 6px 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-weight: 600; color: var(--text-main); transition: 0.2s;}
+        .total-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .total-row.highlight { font-weight: 700; font-size: 18px; color: var(--primary); padding-top: 15px; border-top: 1px dashed #cbd5e1; margin-top: 5px; }
 
+        .btn-pay { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; border-radius: var(--radius-md); margin-top: 20px; letter-spacing: 0.5px; text-transform: uppercase;}
+
+        /* Order Management Tab */
+        .om-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .om-title { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e0e7ff; color: var(--primary); }
+
+        /* Custom Checkbox */
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); border-radius: 4px;}
+
+        /* Print styles */
         @media print {
-            .no-print { display: none !important; }
+            .no-print, .app-header { display: none !important; }
+            body { background: #fff; height: auto; overflow: visible; padding: 0;}
             #print-area { display: block !important; width: 100%; }
             .receipt-page { page-break-after: always; padding: 20px; color: #000; font-family: sans-serif; }
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
             .print-table { width: 100%; border-collapse: collapse; }
-            .print-table th, .print-table td { border-bottom: 1px dashed #000; padding: 8px 5px; font-size: 14px;} /* Thêm padding ngang 5px để chữ không dính nhau */
+            .print-table th, .print-table td { border-bottom: 1px dashed #000; padding: 8px 5px; font-size: 14px;}
         }
         #print-area { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="container no-print">
-        <div id="db-status" class="status-loading">⏳ Đang kết nối dữ liệu sản phẩm...</div>
+    <header class="app-header no-print">
+        <div class="header-left">
+            <div class="brand-name"><i class="fa-solid fa-store" style="font-size: 18px;"></i> HỒNG NHIÊN POS</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('pos')"><i class="fa-solid fa-cart-shopping"></i> Bán hàng</button>
+                <button class="nav-tab" onclick="switchTab('orders')"><i class="fa-solid fa-list-check"></i> Quản lý đơn</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn" style="background: rgba(255,255,255,0.2); color: white; border-radius: 50%; width: 36px; height: 36px; padding: 0;" onclick="resetForm(true)" title="Làm mới"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+    </header>
 
-        <div class="card">
-            <b class="card-title">1. Thông tin khách hàng</b>
-            <div class="row">
-                <div class="col form-group"><label>Số điện thoại</label><input type="tel" id="cusPhone" class="form-control" placeholder="090..."></div>
-                <div class="col form-group"><label>Tên khách hàng</label><input type="text" id="cusName" class="form-control"></div>
-                <div class="col form-group">
-                    <label>Nhân viên</label>
-                    <select id="staffName" class="form-control">
-                        <option>Thịnh</option><option>Tâm</option><option>Hòa</option><option>Lâm</option>
-                    </select>
+    <div id="db-status" class="status-loading no-print"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối dữ liệu...</div>
+
+    <div class="main-content no-print">
+        
+        <div id="tab-pos" class="tab-content active">
+            
+            <div class="left-panel card">
+                <div class="add-product-row">
+                    <div class="form-group autocomplete-container">
+                        <label>Tìm sản phẩm</label>
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-size: 13px;"></i>
+                            <input type="text" id="prodName" class="form-control" placeholder="Gõ từ khóa tìm máy..." autocomplete="off" style="padding-left: 36px;">
+                        </div>
+                        <ul id="suggestions" class="suggestions-list"></ul>
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 120px;">
+                        <label>Đơn giá</label>
+                        <input type="tel" id="price" class="form-control" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)">
+                    </div>
+                    <div class="form-group" style="width: 70px;">
+                        <label>SL</label>
+                        <input type="number" id="qty" class="form-control" value="1" style="text-align: center;">
+                    </div>
+                    <div class="form-group" style="flex: 1.5; min-width: 150px;">
+                        <label>Ghi chú SP</label>
+                        <input type="text" id="prodNote" class="form-control" placeholder="Màu sắc, kèm pin...">
+                    </div>
+                    <button class="btn btn-primary" style="height: 42px; margin-bottom: 2px;" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Thêm</button>
+                </div>
+
+                <div class="cart-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th align="right">Đơn giá</th>
+                                <th align="center" style="width: 70px;">SL</th>
+                                <th align="right">Thành tiền</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-tbody">
+                            <tr><td colspan="5" class="cart-empty"><i class="fa-solid fa-box-open" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>Chưa có sản phẩm nào trong giỏ hàng</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-2 form-group"><label>Địa chỉ / Chành xe</label><input type="text" id="cusAddress" class="form-control"></div>
-                <div class="col form-group">
-                    <label>Kênh giao</label>
-                    <select id="saleChannel" class="form-control">
-                        <option>Trực tiếp</option><option>GRAB</option><option>Gửi XE</option><option>VTP</option>
-                    </select>
+
+            <div class="right-panel">
+                <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                    <div class="right-panel-header">
+                        <div style="font-weight: 600; color: var(--text-main); font-size: 15px;">Thông tin đơn hàng</div>
+                        <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-input); padding: 4px 10px; border-radius: 20px;">
+                            <i class="fa-solid fa-user-tie" style="color: var(--primary); font-size: 12px;"></i> 
+                            <select id="staffName">
+                                <option>Thịnh</option><option>Tâm</option><option>Hòa</option><option>Lâm</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" id="cusPhone" class="form-control" placeholder="Số điện thoại khách hàng" autocomplete="off">
+                        <ul id="cus-suggestions" class="suggestions-list"></ul>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="cusName" class="form-control" placeholder="Tên khách hàng" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <input type="text" id="cusAddress" class="form-control" placeholder="Địa chỉ / Chành xe" autocomplete="off">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <select id="saleChannel" class="form-control" style="padding-left: 38px;">
+                                <option>Trực tiếp</option><option>GRAB</option><option>Gửi XE</option><option>VTP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 10px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <input type="text" id="note" class="form-control" placeholder="Ghi chú toàn bộ đơn hàng (in trên phiếu)...">
+                    </div>
+
+                    <div class="summary-totals">
+                        <div class="total-row">
+                            <span style="color: var(--text-muted);">Tổng tiền hàng</span>
+                            <b id="lbl-sum-items" style="font-size: 15px;">0</b>
+                        </div>
+                        <div class="total-row">
+                            <span style="color: var(--text-muted);">Phí ship (Thu khác)</span>
+                            <input type="tel" id="shipFee" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)">
+                        </div>
+                        <div class="total-row">
+                            <span style="color: var(--text-muted);">Đã cọc (Giảm trừ)</span>
+                            <input type="tel" id="deposit" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)">
+                        </div>
+                        <div class="total-row highlight">
+                            <span>KHÁCH CẦN TRẢ</span>
+                            <span id="lbl-final-total">0</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: auto;">
+                        <button class="btn btn-primary btn-pay" id="btnSave" onclick="saveOrder()"><i class="fa-solid fa-paper-plane" style="margin-right: 5px;"></i> LƯU ĐƠN BẮN SHEET</button>
+                    </div>
                 </div>
             </div>
+            
         </div>
-
-        <div class="card">
-            <b class="card-title">2. Chọn máy & linh kiện</b>
-            <div class="row">
-                <div class="col-2 form-group autocomplete-container">
-                    <label>Tên sản phẩm</label>
-                    <input type="text" id="prodName" class="form-control" placeholder="Gõ từ khóa tìm máy (Vd: khoan pin makita)..." autocomplete="off">
-                    <ul id="suggestions" class="suggestions-list"></ul>
+        <div id="tab-orders" class="tab-content">
+            
+            <div class="card order-management" style="width: 100%;">
+                <div class="om-header">
+                    <div class="om-title">
+                        <i class="fa-solid fa-list-check" style="color: var(--primary);"></i> 
+                        Danh sách chờ in 
+                        <span id="count" style="background: var(--danger); color: white; padding: 2px 8px; border-radius: 12px; font-size: 13px;">0</span>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-size: 13px;"></i>
+                            <input type="text" id="searchOrderInput" class="form-control" style="width: 300px; padding-left: 36px;" placeholder="Tìm theo tên khách hàng..." oninput="filterOrderList()">
+                        </div>
+                        <button class="btn btn-success" style="height: 42px; font-weight: 600;" onclick="printSelectedOrders()"><i class="fa-solid fa-print"></i> IN ĐƠN ĐÃ CHỌN</button>
+                    </div>
                 </div>
-                <div class="col form-group"><label>Đơn giá</label><input type="tel" id="price" class="form-control" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)"></div>
-                <div class="col form-group"><label>SL</label><input type="number" id="qty" class="form-control" value="1"></div>
+                
+                <div style="overflow-y: auto; flex: 1; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px; text-align:center;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                                <th>Thông tin khách hàng</th>
+                                <th>Kênh giao / NV</th>
+                                <th align="right">Cần thu</th>
+                                <th align="center" style="width: 130px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-tbody">
+                            <tr><td colspan="5" class="cart-empty">Không có đơn nào chờ in</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Ghi chú riêng cho sản phẩm này (Màu sắc, tặng kèm...)</label>
-                <input type="text" id="prodNote" class="form-control" placeholder="Ví dụ: Lấy máy màu đỏ, không kèm pin...">
-            </div>
-            <button class="btn btn-primary" onclick="addProduct()">➕ THÊM VÀO GIỎ</button>
-
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead><tr><th>Sản phẩm</th><th align="right">Đơn giá</th><th align="center">SL</th><th align="right">Tổng</th><th></th></tr></thead>
-                    <tbody id="cart-tbody"><tr><td colspan="5" style="text-align:center; color:#94a3b8;">Chưa có sản phẩm nào</td></tr></tbody>
-                </table>
-            </div>
-            <div style="text-align:right; font-weight:700; margin-top:10px; color: var(--danger)">Tiền hàng: <span id="lbl-sum-items">0</span>đ</div>
+            
         </div>
-
-        <div class="card">
-            <b class="card-title">3. Thanh toán</b>
-            <div class="row">
-                <div class="col form-group"><label>Phí ship</label><input type="tel" id="shipFee" class="form-control" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)"></div>
-                <div class="col form-group"><label>Khách đã cọc</label><input type="tel" id="deposit" class="form-control" placeholder="0" oninput="formatInputMoney(this)" onblur="autoMultiplyStr(this)"></div>
-            </div>
-            <div class="form-group"><label>Ghi chú đơn hàng (Hiện trên phiếu in)</label><input type="text" id="note" class="form-control"></div>
-            <div class="preview-box">
-                <p style="font-weight:600; color: #065f46; margin:0">TỔNG CẦN THU KHÁCH</p>
-                <div class="final-amount" id="lbl-final-total">0 đ</div>
-            </div>
-            <div class="row" style="margin-top:15px">
-                <button class="btn btn-outline" style="flex:1" onclick="resetForm(true)">Làm mới form</button>
-                <button class="btn btn-primary" id="btnSave" style="flex:2" onclick="saveOrder()">LƯU ĐƠN BẮN SHEET</button>
-            </div>
         </div>
-
-        <div class="card">
-            <div class="card-title">
-                <span>4. Danh sách chờ in (<span id="count">0</span>)</span>
-                <input type="text" id="searchOrderInput" class="form-control" style="width: 150px; padding: 5px; font-size:12px;" placeholder="Tìm tên..." oninput="filterOrderList()">
-            </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead><tr><th style="width: 40px; text-align:center;"><input type="checkbox" id="selectAll" checked onclick="toggleSelectAll(this)"></th><th>Thông tin khách</th><th align="right">Cần thu</th><th align="center">Thao tác</th></tr></thead>
-                    <tbody id="order-tbody"></tbody>
-                </table>
-            </div>
-            <button class="btn btn-success" style="margin-top: 15px;" onclick="printSelectedOrders()">🖨️ IN CÁC ĐƠN ĐÃ CHỌN</button>
-        </div>
-    </div>
 
     <div id="print-area"></div>
 
@@ -156,83 +318,161 @@
         const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz7f0qZ49J8qD7sSwfP3GkZzcueLjhtBxf2stcjx5otQ1ys7H8Sl1cPSJa2plVpQb93/exec";
         
         let productDatabase = [];
+        let customerDatabase = []; 
         let currentCart = [];
         let orderList = [];
-        let editingOrderId = null; // Biến lưu ID đơn đang sửa
+        let editingOrderId = null; 
+        let selectedPrintIds = new Set(); 
 
-        // --- HÀM HỖ TRỢ XÓA DẤU TIẾNG VIỆT TỐI ƯU TÌM KIẾM ---
+        // CHUYỂN TAB ĐÃ ĐƯỢC TỐI ƯU LẠI LOGIC ẨN/HIỆN ĐỂ TRÁNH LỖI GIAO DIỆN
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            // Kích hoạt tab đích
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
+            });
+        }
+
         function removeAccents(str) {
             return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
         }
 
-        // --- LOAD LIST TỪ LOCALSTORAGE ---
         function loadOrdersFromLocal() {
             let saved = localStorage.getItem('hongnhien_orders_v3');
+            customerDatabase = []; 
             if(saved) {
                 let parsed = JSON.parse(saved);
+                
+                let map = new Map();
+                parsed.forEach(o => {
+                    if (o.cusPhone && !map.has(o.cusPhone)) {
+                        map.set(o.cusPhone, { phone: o.cusPhone, name: o.cusName, address: o.cusAddress });
+                    }
+                });
+                customerDatabase = Array.from(map.values());
+
                 let today = new Date().toLocaleDateString('vi-VN');
                 orderList = parsed.filter(o => o.date === today);
+                selectedPrintIds.clear(); 
                 renderOrderList();
             }
         }
         function saveOrdersToLocal() { localStorage.setItem('hongnhien_orders_v3', JSON.stringify(orderList)); }
 
-        // --- GET DATA BẢNG GIÁ ---
         async function loadProductData() {
             loadOrdersFromLocal(); 
             const statusEl = document.getElementById('db-status');
+            
             const proxies = [
-                (url) => url, 
-                (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-                (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+                "", 
+                "https://api.allorigins.win/raw?url=", 
+                "https://corsproxy.io/?",
+                "https://api.codetabs.com/v1/proxy?quest="
             ];
 
-            for (let proxyFn of proxies) {
+            let success = false;
+
+            for (let prefix of proxies) {
                 try {
-                    let targetUrl = proxyFn(SHEET_URL);
+                    let targetUrl = prefix ? prefix + encodeURIComponent(SHEET_URL) : SHEET_URL;
                     let res = await fetch(targetUrl);
                     if (!res.ok) continue;
                     
-                    let text = targetUrl.includes('allorigins') ? (await res.json()).contents : await res.text();
+                    let text = await res.text();
 
                     if (text && text.includes('\t')) {
-                        const lines = text.split('\n').slice(1);
-                        productDatabase = lines.map(line => {
-                            const cols = line.split('\t');
-                            return { name: cols[0]?.trim(), price: parseInt(cols[1]?.replace(/[^0-9]/g, '')) || 0 };
-                        }).filter(p => p.name);
+                        const lines = text.split('\n').filter(line => line.trim() !== '');
+                        const dataLines = lines.slice(1);
                         
-                        statusEl.className = "status-success"; statusEl.innerText = `✅ Đã tải ${productDatabase.length} sản phẩm!`;
+                        productDatabase = dataLines.map(line => {
+                            const cols = line.split('\t');
+                            return { 
+                                name: cols[0] ? cols[0].trim() : '', 
+                                price: cols[1] ? parseInt(cols[1].replace(/[^0-9]/g, '')) || 0 : 0 
+                            };
+                        }).filter(p => p.name !== '');
+                        
+                        statusEl.className = "status-success"; 
+                        statusEl.innerHTML = `<i class="fa-solid fa-check"></i> Đã tải ${productDatabase.length} sản phẩm & ${customerDatabase.length} khách cũ`;
                         setTimeout(() => statusEl.style.display = 'none', 3000);
-                        return;
+                        success = true;
+                        break; 
                     }
-                } catch (e) { }
+                } catch (e) {
+                    console.warn("Proxy failed:", prefix);
+                }
             }
-            statusEl.className = "status-error"; statusEl.innerText = "❌ Không tải được bảng giá. F5 thử lại!";
+
+            if (!success) {
+                statusEl.className = "status-error"; 
+                statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Không thể lấy dữ liệu sản phẩm. Vui lòng tải lại trang (F5)!';
+            }
         }
         window.onload = loadProductData;
 
-        // --- XỬ LÝ TIỀN ---
+        // XỬ LÝ TIỀN
         function formatMoney(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-        
         function formatInputMoney(i) { 
             let val = i.value.replace(/[^0-9]/g, '');
             i.value = val === "" ? "" : formatMoney(parseInt(val)); 
             updateTotals(); 
         }
-        
         function autoMultiplyStr(i) {
-            if(i.value === "") return; // Cho phép trống
+            if(i.value === "") return; 
             let v = parseInt(i.value.replace(/[^0-9]/g, ''));
             if(isNaN(v)) return;
             if (v > 0 && v < 1000) v *= 1000; 
-            i.value = formatMoney(v); // Cho phép hiển thị 0
+            i.value = formatMoney(v); 
             updateTotals();
         }
-        
         function getNum(id) { return parseInt(document.getElementById(id).value.replace(/[^0-9]/g, '')) || 0; }
 
-        // --- TÌM SẢN PHẨM (Đã tối ưu) ---
+        // --- GỢI Ý KHÁCH HÀNG CŨ ---
+        const inputPhone = document.getElementById('cusPhone');
+        const listCusSugg = document.getElementById('cus-suggestions');
+
+        inputPhone.oninput = function() {
+            const kw = this.value.trim().replace(/[^0-9]/g, ''); 
+            listCusSugg.innerHTML = "";
+            if(!kw || kw.length < 2) { listCusSugg.style.display = 'none'; return; }
+
+            const matched = customerDatabase.filter(c => c.phone.includes(kw)).slice(0, 10);
+
+            if(matched.length) {
+                listCusSugg.style.display = 'block';
+                matched.forEach(c => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:4px;">
+                            <b style="color:var(--text-main)">${c.phone}</b> <span style="color:var(--primary); font-weight:600;">${c.name}</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-muted);">
+                            <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i> ${c.address || 'Không có địa chỉ'}
+                        </div>
+                    `;
+                    li.onclick = () => {
+                        inputPhone.value = c.phone;
+                        document.getElementById('cusName').value = c.name;
+                        document.getElementById('cusAddress').value = c.address;
+                        listCusSugg.style.display = 'none';
+                        document.getElementById('saleChannel').focus();
+                    };
+                    listCusSugg.appendChild(li);
+                });
+            } else listCusSugg.style.display = 'none';
+        };
+
+        document.addEventListener('click', function(e) {
+            if (e.target !== inputPhone) { listCusSugg.style.display = 'none'; }
+            if (e.target !== document.getElementById('prodName')) { document.getElementById('suggestions').style.display = 'none'; }
+        });
+
+        // TÌM SẢN PHẨM
         const inputSp = document.getElementById('prodName'); 
         const listSugg = document.getElementById('suggestions');
         
@@ -241,9 +481,7 @@
             listSugg.innerHTML = "";
             if(!kw) { listSugg.style.display='none'; return; }
             
-            // Tách từ khóa để tìm kiếm linh hoạt hơn
             const searchTerms = kw.split(' ');
-
             const matched = productDatabase.filter(p => {
                 const pName = removeAccents(p.name);
                 return searchTerms.every(term => pName.includes(term));
@@ -253,7 +491,8 @@
                 listSugg.style.display = 'block';
                 matched.forEach(p => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span>${p.name}</span> <b style="color:var(--danger)">${formatMoney(p.price)}</b>`;
+                    li.className = 'flex-row';
+                    li.innerHTML = `<span style="font-weight:500; color:var(--text-main);">${p.name}</span> <b style="color:var(--primary)">${formatMoney(p.price)}</b>`;
                     li.onclick = () => {
                         inputSp.value = p.name;
                         document.getElementById('price').value = formatMoney(p.price);
@@ -266,7 +505,7 @@
             } else listSugg.style.display='none';
         };
 
-        // --- GIỎ HÀNG (Đã fix lỗi giá 0đ) ---
+        // GIỎ HÀNG
         function addProduct() {
             const name = inputSp.value.trim();
             const priceInputStr = document.getElementById('price').value.trim();
@@ -274,26 +513,28 @@
             const qty = parseInt(document.getElementById('qty').value) || 1;
             const note = document.getElementById('prodNote').value;
             
-            if(!name || priceInputStr === "") return alert("Vui lòng nhập tên sản phẩm và đơn giá (có thể nhập 0đ)!");
+            if(!name || priceInputStr === "") return alert("Vui lòng nhập tên sản phẩm và đơn giá!");
             
             currentCart.push({ name, price, qty, total: price * qty, note });
             inputSp.value = ""; 
             document.getElementById('price').value = ""; 
             document.getElementById('qty').value = "1"; 
             document.getElementById('prodNote').value = "";
+            inputSp.focus();
             renderCart();
         }
 
         function renderCart() {
             const tb = document.getElementById('cart-tbody'); tb.innerHTML = ""; let sum = 0;
-            if(!currentCart.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Chưa có sản phẩm nào</td></tr>'; }
+            if(!currentCart.length) { tb.innerHTML = '<tr><td colspan="5" class="cart-empty"><i class="fa-solid fa-box-open" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>Chưa có sản phẩm nào trong giỏ hàng</td></tr>'; }
             currentCart.forEach((p, i) => {
                 sum += p.total;
                 tb.innerHTML += `<tr>
-                    <td><b>${p.name}</b>${p.note ? `<br><small style="color:var(--text-muted); font-style:italic">- ${p.note}</small>` : ''}</td>
-                    <td align="right">${formatMoney(p.price)}</td><td align="center">${p.qty}</td>
-                    <td align="right" style="color:var(--danger); font-weight:600;">${formatMoney(p.total)}</td>
-                    <td align="center"><button class="btn btn-danger btn-sm" onclick="currentCart.splice(${i},1);renderCart()">X</button></td>
+                    <td><b style="color:var(--text-main); font-size:14px;">${p.name}</b>${p.note ? `<br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-pen-nib" style="font-size:10px;"></i> ${p.note}</small>` : ''}</td>
+                    <td align="right" style="color:var(--text-muted);">${formatMoney(p.price)}</td>
+                    <td align="center"><span style="background:var(--bg-input); padding:4px 10px; border-radius:4px; font-weight:600;">${p.qty}</span></td>
+                    <td align="right" style="font-weight:700; color:var(--text-main);">${formatMoney(p.total)}</td>
+                    <td align="center"><button class="btn btn-outline" style="padding: 6px 10px; color: var(--danger); border: none;" onclick="currentCart.splice(${i},1);renderCart()"><i class="fa-solid fa-trash-can"></i></button></td>
                 </tr>`;
             });
             document.getElementById('lbl-sum-items').innerText = formatMoney(sum); updateTotals();
@@ -302,26 +543,26 @@
         function updateTotals() {
             const sum = currentCart.reduce((s, p) => s + p.total, 0);
             const final = sum + getNum('shipFee') - getNum('deposit');
-            document.getElementById('lbl-final-total').innerText = formatMoney(final) + " đ";
+            document.getElementById('lbl-final-total').innerText = formatMoney(final);
             return { sum, final };
         }
 
-        // --- LƯU ĐƠN & SỬA ĐƠN ---
+        // LƯU ĐƠN
         function saveOrder() {
             const name = document.getElementById('cusName').value;
+            const phone = document.getElementById('cusPhone').value;
             if(!name || !currentCart.length) return alert("Vui lòng nhập tên khách và chọn ít nhất 1 sản phẩm!");
             
             const btn = document.getElementById('btnSave');
-            btn.disabled = true; btn.innerText = "⏳ Đang lưu lên Sheet...";
+            btn.disabled = true; btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='margin-right:8px;'></i> Đang lưu lên Sheet...";
 
             const res = updateTotals();
-            
             const orderId = editingOrderId ? editingOrderId : Date.now().toString();
             
             const data = {
                 action: 'save', orderId: orderId,
                 date: new Date().toLocaleDateString('vi-VN'), time: new Date().toLocaleTimeString('vi-VN'),
-                cusName: name, cusPhone: document.getElementById('cusPhone').value, cusAddress: document.getElementById('cusAddress').value,
+                cusName: name, cusPhone: phone, cusAddress: document.getElementById('cusAddress').value,
                 staffName: document.getElementById('staffName').value, saleChannel: document.getElementById('saleChannel').value,
                 spString: currentCart.map(p => `${p.name} ${p.note ? '['+p.note+']' : ''} (${formatMoney(p.price)}x${p.qty})`).join("\n"),
                 sumItems: res.sum, shipFee: getNum('shipFee'), deposit: getNum('deposit'), finalTotal: res.final, note: document.getElementById('note').value
@@ -332,6 +573,11 @@
             .then(resText => {
                 if(resText === "SUCCESS") {
                     orderList.unshift({...data, products: [...currentCart]});
+                    
+                    if(phone && !customerDatabase.some(c => c.phone === phone)) {
+                        customerDatabase.push({phone: phone, name: name, address: data.cusAddress});
+                    }
+                    
                     saveOrdersToLocal();
                     renderOrderList();
                     resetForm();
@@ -339,7 +585,7 @@
                 } else { alert("Lỗi từ Google: " + resText); }
             })
             .catch(() => alert("Lỗi kết nối mạng, không thể lưu!"))
-            .finally(() => { btn.disabled = false; btn.innerText = "LƯU ĐƠN BẮN SHEET"; });
+            .finally(() => { btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET"; });
         }
 
         function resetForm(ask) {
@@ -348,11 +594,13 @@
             ["cusName", "cusPhone", "cusAddress", "shipFee", "deposit", "note", "prodName", "price", "prodNote"].forEach(id => document.getElementById(id).value = "");
             document.getElementById("qty").value = "1";
             editingOrderId = null;
-            document.getElementById('btnSave').innerText = "LƯU ĐƠN BẮN SHEET";
+            document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-paper-plane' style='margin-right:8px;'></i> LƯU ĐƠN BẮN SHEET";
         }
 
+        // SỬA ĐƠN
         function editOrder(id) {
             if(!confirm("Đưa đơn này lên form để chỉnh sửa?\nLưu ý: Đơn cũ sẽ được gỡ khỏi danh sách chờ in.")) return;
+            switchTab('pos');
             
             let order = orderList.find(o => o.orderId === id);
             if(!order) return;
@@ -371,49 +619,79 @@
             renderCart();
 
             editingOrderId = order.orderId;
-            document.getElementById('btnSave').innerText = "💾 LƯU LẠI ĐƠN ĐANG SỬA";
+            document.getElementById('btnSave').innerHTML = "<i class='fa-solid fa-floppy-disk' style='margin-right:8px;'></i> CẬP NHẬT ĐƠN SỬA";
 
             orderList = orderList.filter(o => o.orderId !== id);
+            selectedPrintIds.delete(id);
             saveOrdersToLocal();
             renderOrderList();
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- XỬ LÝ DANH SÁCH IN ---
+        // TICK CHỌN IN
+        function toggleSingleSelect(cb) {
+            if(cb.checked) selectedPrintIds.add(cb.value);
+            else selectedPrintIds.delete(cb.value);
+            updateSelectAllState();
+        }
+
+        function toggleSelectAll(s) {
+            document.querySelectorAll('.print-check').forEach(cb => {
+                cb.checked = s.checked;
+                if(s.checked) selectedPrintIds.add(cb.value);
+                else selectedPrintIds.delete(cb.value);
+            });
+        }
+
+        function updateSelectAllState() {
+            const allChecks = document.querySelectorAll('.print-check');
+            const selectAllCb = document.getElementById('selectAll');
+            if(allChecks.length === 0) { selectAllCb.checked = false; return; }
+            const allChecked = Array.from(allChecks).every(cb => cb.checked);
+            selectAllCb.checked = allChecked;
+        }
+
+        // QUẢN LÝ ĐƠN
         function renderOrderList() {
             const tb = document.getElementById('order-tbody'); tb.innerHTML = "";
             let kw = document.getElementById('searchOrderInput').value.toLowerCase();
             
             let filtered = orderList.filter(o => o.cusName.toLowerCase().includes(kw));
-            if(!filtered.length) { tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Không có đơn nào</td></tr>`; }
+            if(!filtered.length) { tb.innerHTML = `<tr><td colspan="5" class="cart-empty"><i class="fa-solid fa-magnifying-glass" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>Không có đơn nào phù hợp</td></tr>`; }
             
             filtered.forEach(o => {
+                // Đảm bảo đơn nào đã được tick thì vẫn giữ nguyên dấu tick
+                const isChecked = selectedPrintIds.has(o.orderId) ? 'checked' : '';
+                
                 tb.innerHTML += `<tr>
-                    <td align="center"><input type="checkbox" class="print-check" value="${o.orderId}" checked></td>
-                    <td><b>${o.cusName}</b><div style="font-size:11px; color:var(--text-muted)">${o.saleChannel} - NV: ${o.staffName}</div></td>
-                    <td align="right" style="color:var(--danger); font-weight:700;">${formatMoney(o.finalTotal)}</td>
-                    <td align="center" style="white-space: nowrap;">
-                        <button class="btn btn-outline btn-sm" style="margin-right:4px" onclick="editOrder('${o.orderId}')" title="Sửa đơn này">✏️</button>
-                        <button class="btn btn-outline btn-sm" onclick="removeOrderFromList('${o.orderId}')" title="Xóa khỏi list">🗑️</button>
+                    <td align="center"><input type="checkbox" class="print-check" value="${o.orderId}" onchange="toggleSingleSelect(this)" ${isChecked}></td>
+                    <td><b style="color:var(--text-main); font-size:14px;">${o.cusName}</b><br><small style="color:var(--text-muted); margin-top:4px; display:inline-block;"><i class="fa-solid fa-phone" style="font-size:10px; margin-right:4px;"></i> ${o.cusPhone}</small></td>
+                    <td><span class="badge">${o.saleChannel}</span><br><small style="color:var(--text-muted); display:inline-block; margin-top:4px;"><i class="fa-solid fa-user-tie" style="font-size:10px; margin-right:4px;"></i> ${o.staffName}</small></td>
+                    <td align="right" style="color:var(--primary); font-weight:700; font-size: 15px;">${formatMoney(o.finalTotal)}</td>
+                    <td align="center">
+                        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="editOrder('${o.orderId}')" title="Sửa đơn"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-outline" style="padding: 6px 12px; color:var(--danger);" onclick="removeOrderFromList('${o.orderId}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>`;
             });
+            
             document.getElementById('count').innerText = filtered.length;
+            updateSelectAllState();
         }
 
-        function toggleSelectAll(s) { document.querySelectorAll('.print-check').forEach(cb => cb.checked = s.checked); }
         function filterOrderList() { renderOrderList(); }
+        
         function removeOrderFromList(id) { 
             if(confirm("Bỏ đơn này khỏi danh sách in? (Không ảnh hưởng đến file Sheet)")) {
                 orderList = orderList.filter(o => o.orderId !== id);
-                saveOrdersToLocal(); renderOrderList();
+                selectedPrintIds.delete(id);
+                saveOrdersToLocal(); 
+                renderOrderList();
             }
         }
 
-        // --- IN CÁC ĐƠN ĐÃ CHỌN ---
+        // IN ẤN
         function printSelectedOrders() {
-            let ids = Array.from(document.querySelectorAll('.print-check:checked')).map(cb => cb.value);
+            let ids = Array.from(selectedPrintIds);
             if(ids.length === 0) return alert("Vui lòng tích chọn ít nhất 1 đơn để in!");
             
             let listToPrint = orderList.filter(o => ids.includes(o.orderId));
